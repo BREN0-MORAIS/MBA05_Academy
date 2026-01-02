@@ -243,7 +243,4 @@ A solução proposta demonstra, de forma prática e aplicada, os principais conc
 - Aplicação de boas práticas de **arquitetura de software**, como separação de responsabilidades, escalabilidade e desacoplamento;
 - Uso de **mensageria** para comunicação entre serviços.
 
----
-
-🚀 **AcademyIO** — Projeto acadêmico orientado à prática, com foco em DevOps, arquitetura moderna e excelência técnica.
 
