@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: academyio-bff
+  namespace: academyio
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: academyio-bff
+  template:
+    metadata:
+      labels:
+        app: academyio-bff
+    spec:
+      containers:
+        - name: bff
+          image: brenodev29/academyio:bff
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "512Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: academyio-bff
+  namespace: academyio
+spec:
+  selector:
+    app: academyio-bff
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP

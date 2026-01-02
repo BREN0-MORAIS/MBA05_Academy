@@ -1,0 +1,92 @@
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: ./src/services/AcademyIO.Auth.API/Dockerfile
+    image: brenodev29/academyio:auth
+    container_name: academyio-auth
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      MessageQueueConnection__MessageBus: host=rabbit;username=guest;password=guest;publisherConfirms=true;timeout=10
+    ports:
+      - "5001:8080"
+    depends_on:
+      - rabbit
+
+  courses:
+    build:
+      context: .
+      dockerfile: ./src/services/AcademyIO.Courses.API/Dockerfile
+    image: brenodev29/academyio:courses
+    container_name: academyio-courses
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      MessageQueueConnection__MessageBus: host=rabbit;username=guest;password=guest;publisherConfirms=true;timeout=10
+    ports:
+      - "5002:8080"
+    depends_on:
+      - rabbit
+
+  payments:
+    build:
+      context: .
+      dockerfile: ./src/services/AcademyIO.Payments.API/Dockerfile
+    image: brenodev29/academyio:payments
+    container_name: academyio-payments
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      MessageQueueConnection__MessageBus: host=rabbit;username=guest;password=guest;publisherConfirms=true;timeout=10
+    ports:
+      - "5003:8080"
+    depends_on:
+      - rabbit
+
+  students:
+    build:
+      context: .
+      dockerfile: ./src/services/AcademyIO.Students.API/Dockerfile
+    image: brenodev29/academyio:students
+    container_name: academyio-students
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      MessageQueueConnection__MessageBus: host=rabbit;username=guest;password=guest;publisherConfirms=true;timeout=10
+    ports:
+      - "5004:8080"
+    depends_on:
+      - rabbit
+
+  bff:
+    build:
+      context: .
+      dockerfile: ./src/api-gateways/AcademyIO.Bff/Dockerfile
+    image: brenodev29/academyio:bff
+    container_name: academyio-bff
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      AppServicesSettings__CourseUrl: http://courses:8080
+      AppServicesSettings__StudentUrl: http://students:8080
+      AppServicesSettings__PaymentUrl: http://payments:8080
+    ports:
+      - "5000:8080"
+    depends_on:
+      - auth
+      - courses
+      - payments
+      - students
+
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: rabbit-academyio
+    hostname: rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    restart: unless-stopped

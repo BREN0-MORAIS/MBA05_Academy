@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: academyio-students
+  namespace: academyio
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: academyio-students
+  template:
+    metadata:
+      labels:
+        app: academyio-students
+    spec:
+      containers:
+        - name: students
+          image: brenodev29/academyio:students
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+            - name: MessageQueueConnection__MessageBus
+              valueFrom:
+                secretKeyRef:
+                  name: messagebus-secret
+                  key: connection
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "512Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: academyio-students
+  namespace: academyio
+spec:
+  selector:
+    app: academyio-students
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP

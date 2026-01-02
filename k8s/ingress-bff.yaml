@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: academyio-bff-ingress
+  namespace: academyio
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    # If using cert-manager uncomment next line and configure issuer
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  rules:
+    - host: academyio.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: academyio-bff
+                port:
+                  number: 80
+  # tls:
+  # - hosts:
+  #   - academyio.local
+  #   secretName: academyio-tls
