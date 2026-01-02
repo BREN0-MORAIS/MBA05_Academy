@@ -1,4 +1,4 @@
-# 🎓 AcademyIO — Documentação Unificada
+# 🎓 AcademyIO
 
 ### 🧩 MÓDULO 5 — DevOps para Desenvolvedores
 
