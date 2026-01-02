@@ -243,10 +243,6 @@ A solução proposta demonstra, de forma prática e aplicada, os principais conc
 - Aplicação de boas práticas de **arquitetura de software**, como separação de responsabilidades, escalabilidade e desacoplamento;
 - Uso de **mensageria** para comunicação entre serviços.
 
-O projeto foi estruturado visando **clareza, organização e reprodutibilidade**, permitindo que qualquer avaliador ou desenvolvedor consiga executar a aplicação em diferentes cenários (local, containers ou cluster Kubernetes) com o mínimo de esforço.
-
-Apesar do contexto acadêmico, a arquitetura adotada segue padrões amplamente utilizados em ambientes profissionais, servindo como uma base sólida para evoluções futuras e estudos avançados em **DevOps, Cloud Native e Arquitetura de Microserviços**.
-
 ---
 
 🚀 **AcademyIO** — Projeto acadêmico orientado à prática, com foco em DevOps, arquitetura moderna e excelência técnica.
