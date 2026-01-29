@@ -25,3 +25,6 @@ app.UseApiCoreConfiguration(app.Environment);
 app.UseDbMigrationHelper();
 
 app.Run();
+
+// Necessario para WebApplicationFactory em testes de integracao
+public partial class Program { }
