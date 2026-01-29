@@ -29,8 +29,32 @@ public static class ApiCoreConfig
 
         services.AddControllers();
 
+        // CORS Configuration
+        // Em desenvolvimento: permite qualquer origem
+        // Em producao: restringe a origens especificas via configuracao
+        var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? new[] { "http://localhost:4200", "http://localhost:3000" };
+
         services.AddCors(options =>
         {
+            // Politica restritiva para producao
+            options.AddPolicy("Production",
+                builder =>
+                    builder
+                        .WithOrigins(allowedOrigins)
+                        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .WithHeaders("Authorization", "Content-Type", "Accept", "X-Requested-With")
+                        .AllowCredentials());
+
+            // Politica permissiva apenas para desenvolvimento
+            options.AddPolicy("Development",
+                builder =>
+                    builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+
+            // Politica padrao (alias para compatibilidade)
             options.AddPolicy("Total",
                 builder =>
                     builder
@@ -68,7 +92,9 @@ public static class ApiCoreConfig
 
         app.UseRouting();
 
-        app.UseCors("Total");
+        // Usar politica de CORS apropriada para o ambiente
+        var corsPolicy = env.IsDevelopment() ? "Development" : "Production";
+        app.UseCors(corsPolicy);
 
         app.UseAuthConfiguration();
 

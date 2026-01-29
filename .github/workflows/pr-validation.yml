@@ -1,0 +1,93 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  # ============================================
+  # Validacao de Pull Request
+  # ============================================
+  validate-pr:
+    name: Validar Pull Request
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restaurar dependencias
+        run: dotnet restore AcademyIO.sln
+
+      - name: Build da solucao
+        run: dotnet build AcademyIO.sln --configuration Release --no-restore
+
+      - name: Executar testes
+        run: dotnet test AcademyIO.sln --configuration Release --no-build --verbosity normal
+
+      - name: Verificar formatacao de codigo
+        run: dotnet format AcademyIO.sln --verify-no-changes
+        continue-on-error: true
+
+  # ============================================
+  # Verificar alteracoes de arquivos criticos
+  # ============================================
+  check-sensitive-files:
+    name: Verificar Arquivos Sensiveis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verificar arquivos sensiveis alterados
+        run: |
+          echo "Verificando se arquivos sensiveis foram alterados..."
+
+          SENSITIVE_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E "(appsettings\.json|secrets\.yaml|\.env)" || true)
+
+          if [ -n "$SENSITIVE_FILES" ]; then
+            echo "::warning::Arquivos sensiveis foram alterados:"
+            echo "$SENSITIVE_FILES"
+            echo "Por favor, verifique se nao ha credenciais expostas."
+          fi
+
+  # ============================================
+  # Lint de Dockerfiles
+  # ============================================
+  lint-dockerfiles:
+    name: Lint Dockerfiles
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Lint Dockerfiles com Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: "src/services/AcademyIO.Auth.API/Dockerfile"
+          failure-threshold: warning
+        continue-on-error: true
+
+      - name: Lint outros Dockerfiles
+        run: |
+          for dockerfile in src/services/*/Dockerfile src/api-gateways/*/Dockerfile; do
+            if [ -f "$dockerfile" ]; then
+              echo "Linting $dockerfile..."
+              docker run --rm -i hadolint/hadolint < "$dockerfile" || true
+            fi
+          done
+        continue-on-error: true

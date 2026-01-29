@@ -1,0 +1,104 @@
+# ===========================================
+# Docker Compose Override - Desenvolvimento Local
+# ===========================================
+# Este arquivo contem configuracoes adicionais para desenvolvimento.
+# E automaticamente mesclado com docker-compose.yml quando executado.
+#
+# Uso: docker compose up
+# ===========================================
+
+services:
+  auth:
+    environment:
+      # Habilitar Swagger em desenvolvimento
+      ASPNETCORE_ENVIRONMENT: Development
+      # Logs detalhados
+      Logging__LogLevel__Default: Debug
+      Logging__LogLevel__Microsoft.AspNetCore: Warning
+    volumes:
+      # Persistir banco SQLite entre reinicializacoes
+      - auth-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  courses:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Logging__LogLevel__Default: Debug
+      Logging__LogLevel__Microsoft.AspNetCore: Warning
+    volumes:
+      - courses-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  payments:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Logging__LogLevel__Default: Debug
+      Logging__LogLevel__Microsoft.AspNetCore: Warning
+    volumes:
+      - payments-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  students:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Logging__LogLevel__Default: Debug
+      Logging__LogLevel__Microsoft.AspNetCore: Warning
+    volumes:
+      - students-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  bff:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Logging__LogLevel__Default: Debug
+      Logging__LogLevel__Microsoft.AspNetCore: Warning
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  rabbit:
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    volumes:
+      # Persistir dados do RabbitMQ
+      - rabbitmq-data:/var/lib/rabbitmq
+
+# Volumes para persistencia de dados em desenvolvimento
+volumes:
+  auth-data:
+    driver: local
+  courses-data:
+    driver: local
+  payments-data:
+    driver: local
+  students-data:
+    driver: local
+  rabbitmq-data:
+    driver: local

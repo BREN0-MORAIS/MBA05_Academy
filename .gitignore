@@ -371,3 +371,40 @@ FodyWeavers.xsd
 *.db-wal
 *.db
 *.db-shm
+
+# Environment files - NUNCA commite arquivos .env com credenciais reais!
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+*.lcov
+.nyc_output/
+
+# Test results
+TestResults/
+test-results/
+
+# Local development overrides (pode conter credenciais)
+docker-compose.local.yml
+appsettings.Local.json
+appsettings.*.Local.json
+
+# Secrets - NUNCA commite secrets reais!
+secrets/
+*.pem
+*.key
+*.pfx
+*.p12
